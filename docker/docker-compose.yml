@@ -1,0 +1,30 @@
+version: "3"
+
+services:
+  web:
+    image: pradeep663299719/webchat:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - HOST=0.0.0.0
+      - MONGO_URI=mongodb://mongo/webchat
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+
+  mongo:
+    image: mongo:4.4
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-network
+
+  volumes:
+    mongo-data:
+      driver: local
+
+networks:
+  app-network:
+    driver: bridge
