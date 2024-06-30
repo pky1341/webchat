@@ -24,7 +24,7 @@ export default function Navbar() {
                             href="#"
                             className="font-medium flex items-center text-sm transition-colors hover:underline"
                             prefetch={false}
-                        >     
+                        >
                             About
                         </Link>
                         <Link
@@ -46,7 +46,10 @@ export default function Navbar() {
                         <Button variant="outline" size="sm">
                             Sign in
                         </Button>
-                        <Button size="sm">Sign up</Button>
+                        <Link href="/sign-up">
+                            <Button size="sm">Sign up</Button>
+                        </Link>
+
                         <ModeToggle />
                     </div>
                 </div>
