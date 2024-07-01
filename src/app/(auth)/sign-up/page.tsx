@@ -1,70 +1,91 @@
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
+"use client";
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@/components/ui/button';
+import {
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form"
+import { Input } from '@/components/ui/input';
+import { signUpSchema } from '@/schemas/signUpSchema';
+import Link from "next/link";
 
 export default function SignUpForm() {
+    const form = useForm({
+        resolver: zodResolver(signUpSchema),
+        defaultValues: {
+            email: '',
+            password: '',
+        },
+    });
+
+    const onSubmit=async ()=>{
+        try {
+            await form.handleSubmit(onSubmit);
+            
+        } catch (error) {
+            // error logic
+        }
+    }
+
     return (
-        <div className="mx-auto max-w-[400px] space-y-6">
-            <div className="space-y-2 text-center">
-                <h1 className="text-3xl font-bold">Sign Up</h1>
-                <p className="text-muted-foreground">Create your account to get started.</p>
-            </div>
-            <div className="space-y-4">
-                <div className="space-y-2">
-                    <Label htmlFor="name">Name</Label>
-                    <Input id="name" placeholder="John Doe" required />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" placeholder="example@email.com" required />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
-                    <Input id="password" type="password" required />
-                </div>
-                <Button type="submit" className="w-full">
-                    Sign Up
-                </Button>
-                <div className="flex items-center justify-center space-x-2">
-                    <span className="h-[1px] w-full bg-muted" />
-                    <span className="text-muted-foreground">or</span>
-                    <span className="h-[1px] w-full bg-muted" />
-                </div>
-                <Button variant="outline" className="w-full">
-                    <ChromeIcon className="mr-2 h-5 w-5" />
-                    Sign up with Google
-                </Button>
-            </div>
-            <div className="text-center text-sm text-muted-foreground">
-                Already have an account?{" "}
-                <Link href="#" className="font-medium underline underline-offset-4" prefetch={false}>
-                    Sign in
-                </Link>
-            </div>
-        </div>
-    )
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Username</FormLabel>
+                            <FormControl>
+                                <Input placeholder="shadcn" {...field} />
+                            </FormControl>
+                            <FormDescription>
+                                This is your public display name.
+                            </FormDescription>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <Button type="submit">Submit</Button>
+            </form>
+        </Form>
+    );
 }
 
-function ChromeIcon(props: React.SVGAttributes<SVGSVGElement>) {
+
+
+const GoogleIcon = (props: React.SVGAttributes<SVGSVGElement>) => {
     return (
         <svg
-            {...props}
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
+            width={24}
+            height={24}
             viewBox="0 0 24 24"
             fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+            xmlns="http://www.w3.org/2000/svg"
+            {...props}
         >
-            <circle cx="12" cy="12" r="10" />
-            <circle cx="12" cy="12" r="4" />
-            <line x1="21.17" x2="12" y1="8" y2="8" />
-            <line x1="3.95" x2="8.54" y1="6.06" y2="14" />
-            <line x1="10.88" x2="15.46" y1="21.94" y2="14" />
+            <path
+                d="M21.8055 10.0415H21V10H12V14H17.6515C16.827 16.3285 14.6115 18 12 18C8.6865 18 6 15.3135 6 12C6 8.6865 8.6865 6 12 6C13.5295 6 14.921 6.577 15.9805 7.5195L18.809 4.691C16.9765 3.0265 14.6115 2 12 2C6.4775 2 2 6.4775 2 12C2 17.5225 6.4775 22 12 22C17.5225 22 22 17.5225 22 12C22 11.3295 21.931 10.675 21.8055 10.0415Z"
+                fill="#4285F4"
+            />
+            <path
+                d="M3.15503 7.3455L6.6645 10.2039C7.7105 8.0865 9.6255 6.5 12 6.5C13.4825 6.5 14.8395 7.0265 15.9805 7.9805L18.7455 5.1455C16.9765 3.5115 14.6115 2.5 12 2.5C7.9025 2.5 4.4455 5.1865 3.15503 7.3455Z"
+                fill="#EA4335"
+            />
+            <path
+                d="M12 21.5C14.6225 21.5 16.9805 20.4855 18.7455 18.8545L15.1305 15.5395C14.0795 16.4095 13.0625 16.9 12 16.9C9.6255 16.9 7.7105 15.3115 6.6685 13.1925L3.1865 16.1115C4.4825 18.5115 7.9025 21.5 12 21.5Z"
+                fill="#34A853"
+            />
+            <path
+                d="M21.8055 10.0415H21V10H12V14H17.6515C17.1615 15.2215 16.1165 16.1925 14.8255 16.7115L18.7455 18.8545C18.1305 19.321 21 17 21 12C21 11.3295 21.031 10.675 21.8055 10.0415Z"
+                fill="#FBBC05"
+            />
         </svg>
-    )
-}
+    );
+};
