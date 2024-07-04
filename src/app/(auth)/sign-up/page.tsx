@@ -105,19 +105,19 @@ export default function SignUpForm() {
                                     <FormControl>
                                         <InputOTPGroup>
                                             <InputOTPSlot index={0}>
-                                                <InputOTP {...field} />
+                                                <InputOTP {...field} maxLength={9999} />
                                             </InputOTPSlot>
                                             <InputOTPSeparator>-</InputOTPSeparator>
                                             <InputOTPSlot index={1}>
-                                                <InputOTP {...field} />
+                                                <InputOTP {...field} maxLength={9999} />
                                             </InputOTPSlot >
                                             <InputOTPSeparator>-</InputOTPSeparator>
                                             <InputOTPSlot index={2}>
-                                                <InputOTP {...field} />
+                                                <InputOTP {...field} maxLength={9999} />
                                             </InputOTPSlot>
                                             <InputOTPSeparator>-</InputOTPSeparator>
                                             <InputOTPSlot index={3}>
-                                                <InputOTP {...field} />
+                                                <InputOTP {...field} maxLength={9999} />
                                             </InputOTPSlot>
                                         </InputOTPGroup>
                                     </FormControl>
