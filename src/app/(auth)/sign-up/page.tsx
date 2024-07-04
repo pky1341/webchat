@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,14 @@ import { Input } from "@/components/ui/input";
 import { signUpSchema } from "@/schemas/signUpSchema";
 import Link from "next/link";
 import { z } from "zod";
+import {
+    InputOTP,
+    InputOTPGroup,
+    InputOTPSeparator,
+    InputOTPSlot,
+} from "@/components/ui/input-otp";
+import { Loader2Icon } from "@/components/ui/icon";
+import { sendVerificationEmail } from "@/helper/sendVerificationEmail";
 
 export default function SignUpForm() {
     const form = useForm<z.infer<typeof signUpSchema>>({
@@ -24,9 +33,11 @@ export default function SignUpForm() {
             password: "",
         },
     });
+    const [isOTPSubmitting, setIsOTPSubmitting] = useState(false);
 
     const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
         try {
+            setIsOTPSubmitting(true);
             const res = await fetch('/api/sign-up', {
                 method: 'POST',
                 headers: {
@@ -34,8 +45,11 @@ export default function SignUpForm() {
                 },
                 body: JSON.stringify(data)
             });
+            setIsOTPSubmitting(false);
+            // const json = await res.json();
             console.log(res);
         } catch (error) {
+            setIsOTPSubmitting(false);
             console.error(error);
         }
     };
@@ -82,8 +96,44 @@ export default function SignUpForm() {
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit" className="w-full">
-                            Sign Up
+                        <FormField
+                            control={form.control}
+                            name="otp"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel htmlFor="otp">Enter OTP</FormLabel>
+                                    <FormControl>
+                                        <InputOTPGroup>
+                                            <InputOTPSlot index={0}>
+                                                <InputOTP {...field} />
+                                            </InputOTPSlot>
+                                            <InputOTPSeparator>-</InputOTPSeparator>
+                                            <InputOTPSlot index={1}>
+                                                <InputOTP {...field} />
+                                            </InputOTPSlot >
+                                            <InputOTPSeparator>-</InputOTPSeparator>
+                                            <InputOTPSlot index={2}>
+                                                <InputOTP {...field} />
+                                            </InputOTPSlot>
+                                            <InputOTPSeparator>-</InputOTPSeparator>
+                                            <InputOTPSlot index={3}>
+                                                <InputOTP {...field} />
+                                            </InputOTPSlot>
+                                        </InputOTPGroup>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <Button type="submit" className="w-full" disabled={isOTPSubmitting}>
+                            {isOTPSubmitting ? (
+                                <div className="flex items-center justify-center">
+                                    <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                                    Submitting OTP
+                                </div>
+                            ) : (
+                                "Sign Up"
+                            )}
                         </Button>
                         <Button variant="outline" className="w-full">
                             <GoogleIcon className="mr-2 h-4 w-4" />

@@ -6,7 +6,7 @@ type connectionObject= {
 
 const connection:connectionObject={};
 
-async function mongoDB(){
+async function mongoDB():Promise<void>{
     if(connection.isConnected){
         console.log('Already connected to the database');
         return;
@@ -23,3 +23,5 @@ async function mongoDB(){
             process.exit();
     }
 }
+
+export default mongoDB;
