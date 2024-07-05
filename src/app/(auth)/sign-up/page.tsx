@@ -1,175 +1,80 @@
-"use client";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
-import {
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@/components/ui/form";
+"use client"
+import React, { useState } from "react";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { Button } from "@/components/ui/button";
+import { useForm } from "react-hook-form";
 import { signUpSchema } from "@/schemas/signUpSchema";
-import Link from "next/link";
 import { z } from "zod";
-import {
-    InputOTP,
-    InputOTPGroup,
-    InputOTPSeparator,
-    InputOTPSlot,
-} from "@/components/ui/input-otp";
-import { Loader2Icon } from "@/components/ui/icon";
-import { sendVerificationEmail } from "@/helper/sendVerificationEmail";
-
-export default function SignUpForm() {
-    const form = useForm<z.infer<typeof signUpSchema>>({
-        resolver: zodResolver(signUpSchema),
-        defaultValues: {
-            email: "",
-            password: "",
-        },
-    });
-    const [isOTPSubmitting, setIsOTPSubmitting] = useState(false);
-
-    const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
-        try {
-            setIsOTPSubmitting(true);
-            const res = await fetch('/api/sign-up', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
-            setIsOTPSubmitting(false);
-            // const json = await res.json();
-            console.log(res);
-        } catch (error) {
-            setIsOTPSubmitting(false);
-            console.error(error);
-        }
-    };
-
-    return (
-        <div className="container flex h-screen justify-center items-center">
-            <div className="mx-auto max-w-[400px] space-y-6">
-                <div className="space-y-2 text-center">
-                    <h1 className="text-3xl font-bold">Sign Up</h1>
-                    <p className="text-muted-foreground">
-                        Enter your email and password to create an account.
-                    </p>
-                </div>
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        <FormField
-                            control={form.control}
-                            name="email"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel htmlFor="email">Email</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            id="email"
-                                            type="email"
-                                            placeholder="Enter Email"
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="password"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel htmlFor="password">Password</FormLabel>
-                                    <FormControl>
-                                        <Input id="password" type="password" placeholder="Enter Password" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="otp"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel htmlFor="otp">Enter OTP</FormLabel>
-                                    <FormControl>
-                                        <InputOTPGroup>
-                                            <InputOTPSlot index={0}>
-                                                <InputOTP {...field} maxLength={9999} />
-                                            </InputOTPSlot>
-                                            <InputOTPSeparator>-</InputOTPSeparator>
-                                            <InputOTPSlot index={1}>
-                                                <InputOTP {...field} maxLength={9999} />
-                                            </InputOTPSlot >
-                                            <InputOTPSeparator>-</InputOTPSeparator>
-                                            <InputOTPSlot index={2}>
-                                                <InputOTP {...field} maxLength={9999} />
-                                            </InputOTPSlot>
-                                            <InputOTPSeparator>-</InputOTPSeparator>
-                                            <InputOTPSlot index={3}>
-                                                <InputOTP {...field} maxLength={9999} />
-                                            </InputOTPSlot>
-                                        </InputOTPGroup>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <Button type="submit" className="w-full" disabled={isOTPSubmitting}>
-                            {isOTPSubmitting ? (
-                                <div className="flex items-center justify-center">
-                                    <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
-                                    Submitting OTP
-                                </div>
-                            ) : (
-                                "Sign Up"
-                            )}
-                        </Button>
-                        <Button variant="outline" className="w-full">
-                            <GoogleIcon className="mr-2 h-4 w-4" />
-                            Sign up with Google
-                        </Button>
-                        <div className="text-center text-sm text-muted-foreground">
-                            Already have an account?{" "}
-                            <Link href="#" className="underline" prefetch={false}>
-                                Log in
-                            </Link>
-                        </div>
-                    </form>
-                </Form>
-            </div>
-        </div>
-    );
+import { FcGoogle } from "react-icons/fc";
+import { Separator } from '@/components/ui/separator';
+interface signUpProps {
+    email: string;
+    password: string;
+    otp: string;
 }
-
-const GoogleIcon = (props: React.SVGAttributes<SVGSVGElement>) => {
+export default function Component() {
+    const [step, setStep] = useState(1)
+    const { register, handleSubmit } = useForm()
+    const onSubmit = (data: z.infer<typeof signUpSchema>) => {
+        console.log(data)
+        setStep(2)
+    }
     return (
-        <svg
-            width={24}
-            height={24}
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            {...props}
-        >
-            <path
-                d="M21 10H12V14H17.6C16.8 16.4 14.5 18 12 18C8.7 18 6 15.3 6 12C6 8.7 8.7 6 12 6C13.5 6 14.9 6.6 15.9 7.5L18.8 4.7C16.9 3 14.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22C17.5 22 22 17.5 22 12C22 11.3 21.9 10.7 21 10Z"
-                fill="#fff"
-                stroke="#000"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-            />
-        </svg>
-    );
-};
+        <div className="min-h-screen w-full flex items-center justify-center p-4 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900">
+            <Card className="w-full max-w-md bg-muted dark:bg-gray-800 shadow-lg">
+                <div className="max-h-fit overflow-y-auto">
+                    <CardHeader>
+                        <CardTitle className="text-gray-800 dark:text-gray-100">Sign Up</CardTitle>
+                        <CardDescription className="text-gray-600 dark:text-gray-400">
+                            {step === 1
+                                ? "Enter your email and password to create an account."
+                                : "Enter the OTP code sent to your email."}
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                            {step === 1 ? (
+                                <>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="email" className="text-gray-700 dark:text-gray-300">Email</Label>
+                                        <Input id="email" type="email" placeholder="m@example.com" className="bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="password" className="text-gray-700 dark:text-gray-300">Password</Label>
+                                        <Input id="password" type="password" placeholder="Password" className="bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600" />
+                                    </div>
+                                </>
+                            ) : (
+                                <InputOTP maxLength={4} pattern="^[0-9]+$">
+                                    <InputOTPGroup>
+                                        <InputOTPSlot index={0} />
+                                        <InputOTPSlot index={1} />
+                                        <InputOTPSlot index={2} />
+                                        <InputOTPSlot index={3} />
+                                    </InputOTPGroup>
+                                </InputOTP>
+                            )}
+                            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                                {step === 1 ? "Sign Up" : "Verify OTP"}
+                            </Button>
+                        </form>
+                    </CardContent>
+                    <Separator className="my-4" />
+                    <Button type="button" variant="outline" className="w-full border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <FcGoogle className="w-5 h-5 mr-2" />
+                        Sign up with Google
+                    </Button>
+                    <CardFooter className="flex justify-center">
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                            Already have an account?{' '}
+                            <a href="#" className="text-blue-600 hover:underline">Log in</a>
+                        </p>
+                    </CardFooter>
+                </div>
+            </Card>
+        </div>
+    )
+}
