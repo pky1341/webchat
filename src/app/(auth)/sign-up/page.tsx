@@ -1,5 +1,5 @@
 "use client";
-import React, { useState,FormEvent } from "react";
+import React, { useState, FormEvent } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,8 @@ import { z } from "zod";
 import { FcGoogle } from "react-icons/fc";
 import { Separator } from '@/components/ui/separator';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from "next/router";
+import { signIn } from "next-auth/react";
 interface SignUpProps {
     email: string;
     password: string;
@@ -18,7 +20,9 @@ interface SignUpProps {
 }
 export default function SignUpForm() {
     const [step, setStep] = useState(1);
-    const { register, handleSubmit } = useForm<z.infer<typeof signUpSchema>>(
+    const [loading, setLoading] = useState(false);
+    // const router = useRouter();
+    const { register, handleSubmit, formState: { errors } } = useForm<z.infer<typeof signUpSchema>>(
         {
             resolver: zodResolver(signUpSchema),
             defaultValues: {
@@ -28,9 +32,12 @@ export default function SignUpForm() {
             }
         }
     );
-    const onSubmit = (data: z.infer<typeof signUpSchema>) => {
-        console.log(data)
-        setStep(2)
+    const onSubmit =async (data: z.infer<typeof signUpSchema>) => {
+        console.log('hi hello',data);
+        setLoading(true);
+        // if (step === 1) {
+            setStep(2);
+        // }
     }
     return (
         <div className="min-h-screen w-full flex items-center justify-center p-4 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900">
@@ -50,11 +57,17 @@ export default function SignUpForm() {
                                 <>
                                     <div className="space-y-2">
                                         <Label htmlFor="email" className="text-gray-700 dark:text-gray-300">Email</Label>
-                                        <Input id="email" type="email" placeholder="m@example.com" className="bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600" />
+                                        <Input id="email" type="email" placeholder="Enter Email" className="bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                                            {...register('email')}
+                                        />
+                                        {errors.email && <p className="text-red-400">{errors.email.message}</p>}
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="password" className="text-gray-700 dark:text-gray-300">Password</Label>
-                                        <Input id="password" type="password" placeholder="Password" className="bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600" />
+                                        <Input id="password" type="password" placeholder="Enter Password" className="bg-gray-50 dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                                            {...register('password')}
+                                        />
+                                        {errors.password && <p className="text-red-400">{errors.password.message}</p>}
                                     </div>
                                 </>
                             ) : (
@@ -73,7 +86,7 @@ export default function SignUpForm() {
                                     </InputOTP>
                                 </div>
                             )}
-                            <Button type="submit" className="w-full">
+                            <Button type="submit" className="w-full" disabled={loading}>
                                 {step === 1 ? "Sign Up" : "Verify OTP"}
                             </Button>
                         </form>
