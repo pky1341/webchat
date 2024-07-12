@@ -30,6 +30,16 @@ export default function SignUpForm() {
     );
     const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
         setLoading(true);
+        try {
+            const response=await fetch('/api/auth/sign-up',{
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body:JSON.stringify(data)
+            });
+            console.log(response);
+        } catch (error) {
+            
+        }
         
     }
     return (

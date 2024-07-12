@@ -19,6 +19,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "input-otp": "^1.2.4",
+    "lru-cache": "^11.0.0",
     "lucide-react": "^0.397.0",
     "maildev": "^2.1.0",
     "mongoose": "^8.4.4",
