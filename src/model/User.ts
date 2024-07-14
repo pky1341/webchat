@@ -1,12 +1,10 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document,ObjectId } from "mongoose";
 
 export interface User extends Document {
+    _id:ObjectId;
     username: string;
     email: string;
     password: string;
-    avatar: string;
-    otpCode: number;
-    otpCodeExpiry: Date;
     isVerified: boolean;
     created_at: Date;
     updated_at: Date;
@@ -30,17 +28,6 @@ const UserSchema: Schema<User> = new mongoose.Schema({
         type: String,
         required: [true, "Password is required"],
         minlength: [6, "Password must be at least 6 characters long"],
-    },
-    otpCode: {
-        type: Number,
-        required: true,
-        default: null,
-        minlength: [4, "otp code must be 4 digit"],
-        select: false
-    },
-    otpCodeExpiry: {
-        type: Date,
-        required: true,
     },
     isVerified: {
         type: Boolean,

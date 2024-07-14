@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 export const OTPForm = () => {
     const [loading, setLoading] = useState(false);
-
     return (
         <>
             <div className="min-h-screen w-full flex items-center justify-center p-4 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900">

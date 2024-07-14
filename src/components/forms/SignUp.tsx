@@ -10,6 +10,7 @@ import { z } from "zod";
 import { FcGoogle } from "react-icons/fc";
 import { Separator } from '@/components/ui/separator';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
 
 interface SignUpProps {
     email: string;
@@ -18,7 +19,7 @@ interface SignUpProps {
 }
 export default function SignUpForm() {
     const [loading, setLoading] = useState(false);
-    // const router = useRouter();
+    const router = useRouter();
     const { register, handleSubmit, formState: { errors } } = useForm<z.infer<typeof signUpSchema>>(
         {
             resolver: zodResolver(signUpSchema),
@@ -30,16 +31,19 @@ export default function SignUpForm() {
     );
     const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
         setLoading(true);
-        try {
+        // try {
             const response=await fetch('/api/auth/sign-up',{
                 method:'POST',
                 headers:{'Content-Type':'application/json'},
                 body:JSON.stringify(data)
             });
             console.log(response);
-        } catch (error) {
-            
-        }
+            if (response?.ok) {
+                router.push('/verify-otp');
+            }
+        // } catch (error) {
+        //     console.log(`signup is failed ${error}`);
+        // }
         
     }
     return (
