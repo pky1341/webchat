@@ -7,14 +7,28 @@ import { useState } from "react";
 import { otpSchema } from "@/schemas/otpSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useRouter, useSearchParams } from 'next/navigation';
+import { z } from "zod";
 
-const {register,handleSubmit,formState:{error}}=useForm({
-    resolver:zodResolver(otpSchema),
-    defaultValues:{email}
-});
+
 export const OTPForm = () => {
     const [loading, setLoading] = useState(false);
     const [timeLeft, setTimeLeft] = useState(90);
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const email = searchParams.get('email');
+    const { register, handleSubmit, formState: { errors } } = useForm<z.infer<typeof otpSchema>>({
+        resolver: zodResolver(otpSchema),
+        defaultValues: { email }
+    });
+    const onSubmit=async ()=>{
+        router.push('/dashboard');
+    }
+
+    const handleResendOTP = async ()=>{
+        setLoading(true);
+    }
+
     return (
         <>
             <div className="min-h-screen w-full flex items-center justify-center p-4 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900">

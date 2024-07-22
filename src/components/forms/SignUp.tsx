@@ -15,7 +15,6 @@ import { useRouter } from 'next/navigation';
 interface SignUpProps {
     email: string;
     password: string;
-    otp: string;
 }
 export default function SignUpForm() {
     const [loading, setLoading] = useState(false);
@@ -38,7 +37,7 @@ export default function SignUpForm() {
                 body: JSON.stringify(data)
             });
             if (response?.ok) {
-                router.push('/verify-otp');
+                router.push(`/verify-otp?email=${encodeURIComponent(data.email)}`);
             }
         } catch (error) {
             console.log(`signup is failed ${error}`);
