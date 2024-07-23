@@ -9,6 +9,7 @@ const nextConfig = {
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     EMAIL_FROM: process.env.EMAIL_FROM,
   },
+  "type": "module"
 };
 
 export default nextConfig;

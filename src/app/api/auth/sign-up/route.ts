@@ -5,7 +5,6 @@ import { sendVerificationEmail } from "@/helper/sendVerificationEmail";
 import { generateNumericOTP } from "@/helper/generateOtp";
 import { rateLimit } from "@/lib/rateLimit";
 import { signUpSchema } from "@/schemas/signUpSchema";
-import bcrypt from "bcrypt";
 // import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -28,16 +27,14 @@ export async function POST(request: Request) {
                     { status: 400 }
                 );
             }
-            const hashedPassword = await bcrypt.hash(password, 12);
-            const userName = email.split("@")[0];
-            const newUser = new UserModel({
-                username: userName,
-                email,
-                password: hashedPassword,
-                isVerified: false,
-            });
+
             const otpCode = generateNumericOTP(4);
-            await OTPModel.create({ email, otp: otpCode });
+            const userName = email.split("@")[0];
+            await OTPModel.findOneAndUpdate(
+                { email },
+                { otp: otpCode, password },
+                { new: true, upsert: true, runValidators: true }
+            );
             await sendVerificationEmail(email, otpCode, userName);
             return Response.json(
                 {
@@ -49,12 +46,9 @@ export async function POST(request: Request) {
                 }
             );
         } catch (error) {
-            return Response.json({ error: 'Invalid input data' }, { status: 400 });
+            return Response.json({ error: "Invalid input data" }, { status: 400 });
         }
     } catch (error) {
-        return Response.json(
-            { error: "Internal server error" },
-            { status: 500 }
-        );
+        return Response.json({ error: "Internal server error" }, { status: 500 });
     }
 }
