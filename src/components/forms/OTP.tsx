@@ -3,52 +3,26 @@ import { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from "@/comp
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import React, { useState } from "react";
+import { useState } from "react";
 import { otpSchema } from "@/schemas/otpSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, useFormContext } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useRouter, useSearchParams } from 'next/navigation';
 import { z } from "zod";
 
-type otpFormData = z.infer<typeof otpSchema>;
 
 export const OTPForm = () => {
     const [loading, setLoading] = useState(false);
     const [timeLeft, setTimeLeft] = useState(90);
-    const [error, setError] = useState<string | null>(null);
     const router = useRouter();
     const searchParams = useSearchParams();
     const email = searchParams.get('email');
-    const { register, handleSubmit, formState: { errors }, setValue } = useForm<otpFormData>({
+    const { register, handleSubmit, formState: { errors } } = useForm<z.infer<typeof otpSchema>>({
         resolver: zodResolver(otpSchema),
-        defaultValues: {
-            email: email || '',
-            otp: ''
-        }
+        defaultValues: { email }
     });
-
-
-    const onSubmit = async (data: otpFormData) => {
-        setLoading(true);
-        setError(null);
-        try {
-            const response = await fetch('/api/auth/verify-otp', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/type' },
-                body: JSON.stringify(data)
-            });
-            if (response?.ok) {
-                router.push('/dashboard');
-            } else {
-                const errorData = await response.json();
-                setError(errorData.error || 'Failed to verify OTP');
-            }
-        } catch (error) {
-            console.log('Error verifying OTP:', error);
-            setError('An error occurred while verifying OTP');
-        } finally {
-            setLoading(false);
-        }
+    const onSubmit = async () => {
+        router.push('/dashboard');
     }
 
     const handleResendOTP = async () => {
@@ -70,7 +44,7 @@ export const OTPForm = () => {
                             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                                 <div className="flex flex-col items-center space-y-4">
                                     <Label htmlFor="otp" className="text-gray-700 dark:text-gray-300">Enter OTP</Label>
-                                    <InputOTP maxLength={4} pattern="^[0-9]+$" className="text-center" {...register('otp')}>
+                                    <InputOTP maxLength={4} pattern="^[0-9]+$" className="text-center">
                                         <InputOTPGroup className="gap-4">
                                             <InputOTPSlot index={0} className="w-12 h-12 text-2xl bg-gray-50 dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 rounded-lg" />
                                             <InputOTPSlot index={1} className="w-12 h-12 text-2xl bg-gray-50 dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 rounded-lg" />
@@ -86,17 +60,20 @@ export const OTPForm = () => {
                                 <Button type="submit" className="w-full" disabled={loading}>
                                     Verify OTP
                                 </Button>
-                                <p className="text-gray-600 dark:text-gray-400">Time left: {Math.floor(timeLeft / 60)}:{timeLeft % 60}</p>
-                                <Button onClick={handleResendOTP} className="w-full" disabled={timeLeft > 0}>
-                                    Resend OTP
-                                </Button>
+                                <div className="flex justify-between items-center p-4">
+                                    <a href="#" onClick={(e) => {
+                                        e.preventDefault();
+                                        handleResendOTP();
+                                    }} className="text-blue-500 hover:text-blue-700 cursor-pointer">
+                                        Resend OTP
+                                    </a>
+                                    <div className="text-gray-600 dark:text-gray-400">
+                                        Time left: {Math.floor(timeLeft / 60)}:{timeLeft % 60}
+                                    </div>
+
+                                </div>
                             </form>
                         </CardContent>
-                        {error && (
-                            <CardFooter>
-                                <p className="text-red-500">{error}</p>
-                            </CardFooter>
-                        )}
                     </div>
                 </Card>
             </div>
