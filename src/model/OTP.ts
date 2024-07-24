@@ -27,12 +27,7 @@ const OTPSchema: Schema<IOTP> = new mongoose.Schema(
             required: true,
             minlength: 4,
             maxlength: 4,
-        },
-        createdAt: {
-            type: Date,
-            default: Date.now,
-            expires: 90,
-        },
+        }
     },
     {
         timestamps: true,
