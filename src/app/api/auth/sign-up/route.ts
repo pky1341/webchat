@@ -5,10 +5,10 @@ import { sendVerificationEmail } from "@/helper/sendVerificationEmail";
 import { generateNumericOTP } from "@/helper/generateOtp";
 import { rateLimit } from "@/lib/rateLimit";
 import { signUpSchema } from "@/schemas/signUpSchema";
-// import { NextRequest, NextResponse } from "next/server";
+import { generateOTP } from '@/lib/otpService';
 
 export async function POST(request: Request) {
-    try {
+    // try {
         await mongoDB();
         const limiter = await rateLimit({
             interval: 60 * 1000,
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
         });
         await limiter.check(10, "SIGNUP_RATE_LIMIT" as any);
         const { email, password } = await request.json();
-        try {
+        // try {
             // const { email, password } = signUpSchema.parse(body);
             const checkUser = await UserModel.findOne({
                 email,
@@ -28,7 +28,8 @@ export async function POST(request: Request) {
                 );
             }
 
-            const otpCode = generateNumericOTP(4);
+            const otpCode = await generateOTP(email);
+            // const otpCode =await generateNumericOTP(4);
             const userName = email.split("@")[0];
             await OTPModel.findOneAndUpdate(
                 { email },
@@ -45,10 +46,10 @@ export async function POST(request: Request) {
                     status: 200,
                 }
             );
-        } catch (error) {
-            return Response.json({ error: "Invalid input data" }, { status: 400 });
-        }
-    } catch (error) {
-        return Response.json({ error: "Internal server error" }, { status: 500 });
-    }
+    //     } catch (error) {
+    //         return Response.json({ error: "Invalid input data" }, { status: 400 });
+    //     }
+    // } catch (error) {
+    //     return Response.json({ error: "Internal server error" }, { status: 500 });
+    // }
 }

@@ -5,6 +5,7 @@ import { NextResponse, NextRequest } from "next/server";
 import bcrypt from "bcrypt";
 import UserModel from "@/model/User";
 import { z } from "zod";
+import { verifyOTP } from '@/lib/otpService';
 
 export async function POST(request: NextRequest) {
     try {
@@ -20,18 +21,13 @@ export async function POST(request: NextRequest) {
                     { status: 400 }
                 );
             }
-            if (checkEmailOtp.otp !== otp) {
+            const isValid = await verifyOTP(email, otp);
+            if (!isValid) {
                 return NextResponse.json({ error: "Invalid OTP" }, { status: 400 });
             }
             const hashedPassword = await bcrypt.hash(checkEmailOtp.password, 12);
             const userName = await email.split("@")[0];
 
-            // await UserModel.create({
-            //     username: userName,
-            //     email,
-            //     password: hashedPassword,
-            //     isVerified: true,
-            // });
             await UserModel.findOneAndUpdate(
                 { email },
                 {

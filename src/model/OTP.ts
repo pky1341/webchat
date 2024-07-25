@@ -27,7 +27,7 @@ const OTPSchema: Schema<IOTP> = new mongoose.Schema(
             required: true,
             minlength: 4,
             maxlength: 4,
-        }
+        },
     },
     {
         timestamps: true,
@@ -35,9 +35,9 @@ const OTPSchema: Schema<IOTP> = new mongoose.Schema(
     }
 );
 
-OTPSchema.index({email:1,createdAt:1})
+OTPSchema.index({ email: 1, createdAt: 1 });
 
-const OTPModel:Model<IOTP> =
+const OTPModel: Model<IOTP> =
     (mongoose.models.OTP as Model<IOTP>) ||
     mongoose.model<IOTP>("OTP", OTPSchema);
 export default OTPModel;
