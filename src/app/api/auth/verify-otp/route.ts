@@ -2,10 +2,10 @@ import mongoDB from "@/lib/mongoDB";
 import OTPModel from "@/model/OTP";
 import { otpSchema } from "@/schemas/otpSchema";
 import { NextResponse, NextRequest } from "next/server";
-import bcrypt from "bcrypt";
 import UserModel from "@/model/User";
 import { z } from "zod";
 import { verifyOTP } from '@/lib/otpService';
+import redisClient from "@/lib/redis";
 
 export async function POST(request: NextRequest) {
     try {
@@ -14,31 +14,23 @@ export async function POST(request: NextRequest) {
         try {
             const { email, otp } = await otpSchema.parse(body);
 
-            const checkEmailOtp = await OTPModel.findOne({ email });
-            if (!checkEmailOtp) {
-                return NextResponse.json(
-                    { error: "OTP not found or expired" },
-                    { status: 400 }
-                );
-            }
             const isValid = await verifyOTP(email, otp);
             if (!isValid) {
                 return NextResponse.json({ error: "Invalid OTP" }, { status: 400 });
             }
-            const hashedPassword = await bcrypt.hash(checkEmailOtp.password, 12);
-            const userName = await email.split("@")[0];
+            const userData= await redisClient.get(`user:${email}`);
+            if (!userData) {
+                return NextResponse.json({ error: "Registration session expired" }, { status: 400 });
+            }
+            const {username,password} = JSON.parse(userData);
 
-            await UserModel.findOneAndUpdate(
-                { email },
-                {
-                    username: userName,
-                    email,
-                    password: hashedPassword,
-                    isVerified: true,
-                },
-                { upsert: true, new: true, setDefaultsOnInsert: true }
-            );
-            await OTPModel.findOneAndDelete({ email });
+            await UserModel.create({
+                username,
+                email,
+                password,
+                isVerified: true,
+            });
+            await redisClient.del(`user:${email}`);
             return NextResponse.json({ success: true, message: "Email verified successfully" }, { status: 200 });
         } catch (error) {
             if (error instanceof z.ZodError) {

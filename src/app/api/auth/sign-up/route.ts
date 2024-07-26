@@ -6,9 +6,11 @@ import { generateNumericOTP } from "@/helper/generateOtp";
 import { rateLimit } from "@/lib/rateLimit";
 import { signUpSchema } from "@/schemas/signUpSchema";
 import { generateOTP } from '@/lib/otpService';
+import redisClient from "@/lib/redis";
+import bcrypt from 'bcrypt';
 
 export async function POST(request: Request) {
-    // try {
+    try {
         await mongoDB();
         const limiter = await rateLimit({
             interval: 60 * 1000,
@@ -16,26 +18,23 @@ export async function POST(request: Request) {
         });
         await limiter.check(10, "SIGNUP_RATE_LIMIT" as any);
         const { email, password } = await request.json();
-        // try {
-            // const { email, password } = signUpSchema.parse(body);
-            const checkUser = await UserModel.findOne({
-                email,
-            });
-            if (checkUser) {
-                return Response.json(
-                    { error: "Email already exists" },
-                    { status: 400 }
-                );
+        try {
+            
+            const existingUserData=await redisClient.get(`user:${email}`);
+
+            if (existingUserData) {
+                return Response.json({ error: "Registration already in progress" }, { status: 400 });
             }
 
             const otpCode = await generateOTP(email);
-            // const otpCode =await generateNumericOTP(4);
+            const hashedPassword = await bcrypt.hash(password, 12);;
             const userName = email.split("@")[0];
-            await OTPModel.findOneAndUpdate(
-                { email },
-                { otp: otpCode, password },
-                { new: true, upsert: true, runValidators: true }
-            );
+            
+            await redisClient.set(`user:${email}`,JSON.stringify({
+                username:userName,
+                email,
+                password:hashedPassword,
+            }));
             await sendVerificationEmail(email, otpCode, userName);
             return Response.json(
                 {
@@ -46,10 +45,10 @@ export async function POST(request: Request) {
                     status: 200,
                 }
             );
-    //     } catch (error) {
-    //         return Response.json({ error: "Invalid input data" }, { status: 400 });
-    //     }
-    // } catch (error) {
-    //     return Response.json({ error: "Internal server error" }, { status: 500 });
-    // }
+        } catch (error) {
+            return Response.json({ error: "Invalid input data" }, { status: 400 });
+        }
+    } catch (error) {
+        return Response.json({ error: "Internal server error" }, { status: 500 });
+    }
 }

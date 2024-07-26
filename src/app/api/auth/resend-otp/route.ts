@@ -6,6 +6,7 @@ import OTPModel from "@/model/OTP";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { generateOTP } from '@/lib/otpService';
+import redisClient from "@/lib/redis";
 
 const resendOTPSchema = z.object({
     email: z.string().email("Invalid email address"),
@@ -22,29 +23,14 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const { email } = resendOTPSchema.parse(body);
 
-        const existingUser = await OTPModel.findOne({ email });
-
-        if (!existingUser) {
-            return NextResponse.json(
-                { error: "No pending registration found for this email" },
-                { status: 400 }
-            );
+        const userData = await redisClient.get(`user:${email}`);
+        if (!userData) {
+            return NextResponse.json({ error: "No pending registration found for this email" }, { status: 400 });
         }
 
         const otpCode = await generateOTP(email);
-        const userName = email.split("@")[0];
-        await sendVerificationEmail(email, otpCode, userName);
-        const result = await OTPModel.findOneAndUpdate(
-            { email },
-            { $set: { otp: otpCode } },
-            { new: true, upsert: false }
-        );
-        if (!result) {
-            return NextResponse.json(
-                { error: "No document found with the specified email." },
-                { status: 400 }
-            );
-        }
+        const {username} = JSON.parse(userData);
+        await sendVerificationEmail(email, otpCode, username);
 
         return NextResponse.json(
             {
