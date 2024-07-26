@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
             const isValid = await verifyOTP(email, otp);
             if (!isValid) {
-                return NextResponse.json({ error: "Invalid OTP" }, { status: 400 });
+                return NextResponse.json({ error: "OTP is Expired please send again" }, { status: 400 });
             }
             const userData= await redisClient.get(`user:${email}`);
             if (!userData) {
