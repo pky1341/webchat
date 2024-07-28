@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 const inter = Inter({ subsets: ["latin"] });
 import { ThemeProvider } from "@/components/theme-provider";
 import { AppProgressBar as ProgressBar } from 'next-nprogress-bar';
+import {Toaster} from "sonner";
 
 // export const metadata: Metadata = {
 //   title: "Create Next App",
@@ -34,6 +35,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <Toaster richColors={true} expand={true} closeButton={true} theme="system" invert={true} />
           <ProgressBar
             height="4px"
             color="#2563eb"

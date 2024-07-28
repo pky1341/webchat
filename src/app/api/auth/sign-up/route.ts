@@ -1,13 +1,12 @@
 import mongoDB from "@/lib/mongoDB";
-import UserModel from "@/model/User";
-import OTPModel from "@/model/OTP";
 import { sendVerificationEmail } from "@/helper/sendVerificationEmail";
-import { generateNumericOTP } from "@/helper/generateOtp";
 import { rateLimit } from "@/lib/rateLimit";
 import { signUpSchema } from "@/schemas/signUpSchema";
 import { generateOTP } from '@/lib/otpService';
 import redisClient from "@/lib/redis";
 import bcrypt from 'bcrypt';
+import { NextResponse } from "next/server";
+import { generateAccessToken } from '@/lib/auth/jwt';
 
 export async function POST(request: Request) {
     try {
@@ -19,24 +18,25 @@ export async function POST(request: Request) {
         await limiter.check(10, "SIGNUP_RATE_LIMIT" as any);
         const { email, password } = await request.json();
         try {
-            
-            const existingUserData=await redisClient.get(`user:${email}`);
+
+            const existingUserData = await redisClient.get(`user:${email}`);
 
             if (existingUserData) {
-                return Response.json({ error: "Registration already in progress" }, { status: 400 });
+                return NextResponse.json({ message: "User already exist" }, { status: 400 });
             }
 
             const otpCode = await generateOTP(email);
             const hashedPassword = await bcrypt.hash(password, 12);;
             const userName = email.split("@")[0];
-            
-            await redisClient.set(`user:${email}`,JSON.stringify({
-                username:userName,
+
+            await redisClient.set(`user:${email}`, JSON.stringify({
+                username: userName,
                 email,
-                password:hashedPassword,
+                password: hashedPassword,
             }));
             await sendVerificationEmail(email, otpCode, userName);
-            return Response.json(
+            const token = generateAccessToken(email);
+            const response = NextResponse.json(
                 {
                     success: true,
                     message: "Verification code has been sent to your email",
@@ -45,10 +45,13 @@ export async function POST(request: Request) {
                     status: 200,
                 }
             );
+            response.cookies.set('auth_token', token, { httpOnly: true, secure: true });
+            response.cookies.set('is_verifying', 'true', { httpOnly: true, secure: true });
+            return response;
         } catch (error) {
-            return Response.json({ error: "Invalid input data" }, { status: 400 });
+            return NextResponse.json({ message: "Invalid input data" }, { status: 400 });
         }
     } catch (error) {
-        return Response.json({ error: "Internal server error" }, { status: 500 });
+        return NextResponse.json({ message: "Internal server error" }, { status: 500 });
     }
 }
