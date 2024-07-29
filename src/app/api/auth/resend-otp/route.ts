@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { generateOTP } from '@/lib/otpService';
 import redisClient from "@/lib/redis";
+import { verifyAccessToken } from "@/lib/auth/jwt";
 
 const resendOTPSchema = z.object({
     email: z.string().email("Invalid email address"),
@@ -17,7 +18,16 @@ export async function POST(request: NextRequest) {
             uniqueTokenPerInterval: 500,
         });
         await limiter.check(5, "RESEND_OTP_RATE_LIMIT" as any);
+        const token = request.cookies.get('auth_token')?.value;
+        if (!token) {
+            return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+        }
 
+        const decodedToken = verifyAccessToken(token);
+
+        if (!decodedToken) {
+            return NextResponse.json({ message: "Invalid token" }, { status: 401 });
+        }
         const body = await request.json();
         const { email } = resendOTPSchema.parse(body);
 
@@ -27,7 +37,7 @@ export async function POST(request: NextRequest) {
         }
 
         const otpCode = await generateOTP(email);
-        const {username} = JSON.parse(userData);
+        const { username } = JSON.parse(userData);
         await sendVerificationEmail(email, otpCode, username);
 
         return NextResponse.json(
