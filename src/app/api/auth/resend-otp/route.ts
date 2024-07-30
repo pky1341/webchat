@@ -19,7 +19,8 @@ export async function POST(request: NextRequest) {
         });
         await limiter.check(5, "RESEND_OTP_RATE_LIMIT" as any);
         const token = request.cookies.get('auth_token')?.value;
-        if (!token) {
+        const isVerifying = request.cookies.get('is_verifying')?.value === 'true';
+        if (!token || !isVerifying) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 

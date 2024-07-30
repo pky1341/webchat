@@ -12,8 +12,9 @@ export async function POST(request: NextRequest) {
         await mongoDB();
         const body = await request.json();
         const token = request.cookies.get('auth_token')?.value;
+        const isVerifying = request.cookies.get('is_verifying')?.value === 'true';
 
-        if (!token) {
+        if (!token || !isVerifying) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
         const decodedToken =verifyAccessToken(token);
@@ -41,8 +42,8 @@ export async function POST(request: NextRequest) {
             await redisClient.del(`user:${email}`);
             const newToken = generateAccessToken(email);
             const response = NextResponse.json({ success: true, message: "Email verified successfully" }, { status: 200 });
-            response.cookies.set('auth_token', newToken, { httpOnly: true, secure: true });
-            response.cookies.set('is_verifying', '', { httpOnly: true, secure: true, maxAge: 0 });
+            response.cookies.set('auth_token', newToken, { httpOnly: true, secure: true,sameSite: 'strict' });
+            response.cookies.set('is_verifying', '', { httpOnly: true, secure: true, maxAge: 0,sameSite: 'strict' });
             return response;
         } catch (error) {
             if (error instanceof z.ZodError) {

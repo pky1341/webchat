@@ -45,8 +45,8 @@ export async function POST(request: Request) {
                     status: 200,
                 }
             );
-            response.cookies.set('auth_token', token, { httpOnly: true, secure: true });
-            response.cookies.set('is_verifying', 'true', { httpOnly: true, secure: true });
+            response.cookies.set('auth_token', token, { httpOnly: true, secure: true,sameSite: 'strict' });
+            response.cookies.set('is_verifying', 'true', { httpOnly: true, secure: true,sameSite: 'strict' });
             return response;
         } catch (error) {
             return NextResponse.json({ message: "Invalid input data" }, { status: 400 });
