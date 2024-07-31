@@ -41,13 +41,20 @@ export async function POST(request: NextRequest) {
         const { username } = JSON.parse(userData);
         await sendVerificationEmail(email, otpCode, username);
 
-        return NextResponse.json(
+        const response = NextResponse.json(
             {
                 success: true,
                 message: "New verification code has been sent to your email",
             },
             { status: 200 }
         );
+        response.cookies.set('is_verifying','true',{
+            httpOnly:true,
+            secure:true,
+            sameSite:'strict',
+            maxAge:3600
+        })
+        return response;
     } catch (error) {
         if (error instanceof z.ZodError) {
             return NextResponse.json({ message: error.errors }, { status: 400 });
