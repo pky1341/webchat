@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 const inter = Inter({ subsets: ["latin"] });
 import { ThemeProvider } from "@/components/theme-provider";
 import { AppProgressBar as ProgressBar } from 'next-nprogress-bar';
-import {Toaster} from "sonner";
+import { Toaster } from "sonner";
 
 // export const metadata: Metadata = {
 //   title: "Create Next App",

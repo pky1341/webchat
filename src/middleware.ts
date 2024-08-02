@@ -6,11 +6,15 @@ export function middleware(request: NextRequest) {
 
     if (path === '/verify-otp') {
         const token = request.cookies.get("auth_token")?.value;
+        console.log(`toekn ${tpekn}`);
         const isVerifying = request.cookies.get("is_verifying")?.value === "true";
+        console.log(`verifying : ${isVerifying}`);
         if (!token) {
             return NextResponse.redirect(new URL('/sign-up', request.url));
         }
+        
         const decodedToken = verifyAccessToken(token);
+        console.log(`decode toekn ${decodedToken}`);
         if (!decodedToken) {
             return NextResponse.redirect(new URL('/sign-up', request.url));
         }
