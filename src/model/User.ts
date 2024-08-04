@@ -1,18 +1,23 @@
-import mongoose, { Schema, Document, ObjectId, Model } from "mongoose";
+import mongoose, { Schema, Model } from "mongoose";
+import { DefaultUser } from "next-auth";
 
-export interface IUser extends Document {
-    _id: ObjectId;
+export interface IUser extends Omit<DefaultUser, 'id'> {
+    id: string;
+    name?:string;
     username: string;
     email: string;
-    password: string;
+    password?: string;
     isVerified: boolean;
-    created_at: Date;
-    updated_at: Date;
+    image?:string;
+    googleId?: string;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export type UserModel = Model<IUser, {}>;
 
 const UserSchema: Schema<IUser, UserModel> = new mongoose.Schema({
+    name: String,
     username: {
         type: String,
         required: [true, "Username is required"],
@@ -37,14 +42,16 @@ const UserSchema: Schema<IUser, UserModel> = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: [true, "Password is required"],
+        required: false,
         minlength: [6, "Password must be at least 6 characters long"],
         select: false,
     },
     isVerified: {
         type: Boolean,
         default: false,
-    }
+    },
+    image: String,
+    googleId: String,
 }, {
     timestamps: true,
     versionKey: false,
@@ -53,6 +60,6 @@ const UserSchema: Schema<IUser, UserModel> = new mongoose.Schema({
 UserSchema.index({ email: 1 });
 UserSchema.index({ username: 1 });
 
-const UserModel = (mongoose.models.User as UserModel) || mongoose.model<IUser, UserModel>('User', UserSchema);
+const UserModel: Model<IUser> = mongoose.models.User as Model<IUser> || mongoose.model<IUser>('User', UserSchema);
 
 export default UserModel;

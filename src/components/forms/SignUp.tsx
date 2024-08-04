@@ -14,7 +14,8 @@ import { useRouter } from 'next/navigation';
 import { Oval } from "react-loader-spinner";
 import { toast } from "sonner";
 import { ErrorMessage } from "@/utils/errAni";
-import {AnimatePresence} from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
+import { signIn } from "next-auth/react";
 
 interface SignUpProps {
     email: string;
@@ -22,6 +23,7 @@ interface SignUpProps {
 }
 export default function SignUpForm() {
     const [loading, setLoading] = useState(false);
+    const [googleLoading, setGoogleLoading] = useState(false);
     const router = useRouter();
     const { register, handleSubmit, formState: { errors }, setError } = useForm<z.infer<typeof signUpSchema>>(
         {
@@ -54,7 +56,6 @@ export default function SignUpForm() {
                 } else {
                     toast.error(msg.message);
                 }
-
             }
         } catch (error) {
             toast.error(`signup is failed ${error}`);
@@ -62,7 +63,22 @@ export default function SignUpForm() {
             setLoading(false);
         }
     }
-    
+    const googleSignup = async () => {
+        setGoogleLoading(true);
+        try {
+            const result = await signIn('google', { callbackUrl: '/dashboard', redirect: false });
+            if (result?.error) {
+                toast.error(`Google signup failed: ${result.error}`);
+            } else if (result?.url) {
+                router.push(result.url);
+            }
+        } catch (error) {
+            toast.error(`google signup is failed ${error}`);
+        } finally {
+            setGoogleLoading(false);
+        }
+    }
+
     return (
         <div className="min-h-screen w-full flex items-center justify-center p-4 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900">
             <Card className="w-full max-w-md bg-muted dark:bg-gray-800 shadow-lg">
@@ -106,10 +122,21 @@ export default function SignUpForm() {
                         </form>
                         <Separator className="my-4" />
                         <Button type="button" variant="outline" className="w-full border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                            onClick={() => toast.info("Google Sign Up is not implemented yet.")}
-                        >
-                            <FcGoogle className="w-5 h-5 mr-2" />
-                            Sign up with Google
+                            onClick={googleSignup}
+                            disabled={googleLoading}>
+                            {googleLoading ? (<Oval
+                                height="28"
+                                width="28"
+                                color="#017BBE"
+                                ariaLabel="oval-loading"
+                                wrapperStyle={{}}
+                                wrapperClass=""
+                                visible={true}
+                            />) : (<>
+                                <FcGoogle className="w-5 h-5 mr-2" />
+                                Sign up with Google
+                            </>)
+                            }
                         </Button>
                     </CardContent>
                     <CardFooter className="flex justify-center">

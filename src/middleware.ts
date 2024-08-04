@@ -3,41 +3,25 @@ import { verifyAccessToken } from "./lib/auth/jwt";
 
 export function middleware(request: NextRequest) {
     const path = request.nextUrl.pathname;
+    const token = request.cookies.get("auth_token")?.value;
+    const isVerifying = request.cookies.get("is_verifying")?.value === "true";
 
-    if (path === '/verify-otp') {
-        const token = request.cookies.get("auth_token")?.value;
-        console.log(`toekn ${tpekn}`);
-        const isVerifying = request.cookies.get("is_verifying")?.value === "true";
-        console.log(`verifying : ${isVerifying}`);
+    if (path === '/verify-otp' || path === '/dashboard') {
         if (!token) {
             return NextResponse.redirect(new URL('/sign-up', request.url));
         }
-        
+
         const decodedToken = verifyAccessToken(token);
-        console.log(`decode toekn ${decodedToken}`);
         if (!decodedToken) {
             return NextResponse.redirect(new URL('/sign-up', request.url));
         }
-        if (token && isVerifying) {
+
+        if (path === '/verify-otp' && isVerifying) {
             return NextResponse.next();
         }
-        if (token && !isVerifying) {
-            return NextResponse.redirect(new URL("/dashboard", request.url));
-        }
-        return NextResponse.redirect(new URL("/sign-up", request.url));
-    }
-    if (path === '/dashboard') {
-        const token = request.cookies.get("auth_token")?.value;
-        const isVerifying = request.cookies.get("is_verifying")?.value === "true";
-        if (!token) {
-            return NextResponse.redirect(new URL('/sign-up', request.url));
-        }
-        const decodedToken = verifyAccessToken(token);
-        if (!decodedToken) {
-            return NextResponse.redirect(new URL('/sign-up', request.url));
-        }
-        if (token && !isVerifying) {
-            return NextResponse.redirect(new URL("/dashboard", request.url));
+
+        if (path === '/dashboard' && !isVerifying) {
+            return NextResponse.next();
         }
     }
     return NextResponse.next();

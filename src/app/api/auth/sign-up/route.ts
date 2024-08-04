@@ -35,7 +35,7 @@ export async function POST(request: Request) {
                 password: hashedPassword,
             }));
             await sendVerificationEmail(email, otpCode, userName);
-            const token = generateAccessToken(email);
+            const token =await generateAccessToken(email);
             const response = NextResponse.json(
                 {
                     success: true,

@@ -1,26 +1,41 @@
-import jwt from "jsonwebtoken";
+import { jwtVerify, SignJWT } from "jose";
 
-const JWT_SECRET = process.env.JWT_SECRET!;
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET!;
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET!);
+const JWT_REFRESH_SECRET = new TextEncoder().encode(
+    process.env.JWT_REFRESH_SECRET!
+);
 
-export function generateAccessToken(userId: string): string {
-    return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '15m' });
+export async function generateAccessToken(email: string): Promise<string> {
+    return await new SignJWT({ email })
+        .setProtectedHeader({ alg: "HS256" })
+        .setExpirationTime("15m")
+        .sign(JWT_SECRET);
 }
 
-export function generateRefreshToken(userId: string): string {
-    return jwt.sign({ userId }, JWT_REFRESH_SECRET, { expiresIn: '7d' });
-}
-
-export function verifyAccessToken(token: string): { userId: string } | null {
+export async function verifyAccessToken(
+    token: string
+): Promise<{ email: string } | null> {
     try {
-        return jwt.verify(token, JWT_SECRET) as { userId: string };
+        const { payload } = await jwtVerify(token, JWT_SECRET);
+        return payload as { email: string };
     } catch (error) {
         return null;
     }
 }
-export function verifyRefreshToken(token: string): { userId: string } | null {
+
+export async function generateRefreshToken(email: string): Promise<string> {
+    return await new SignJWT({ email })
+        .setProtectedHeader({ alg: "HS256" })
+        .setExpirationTime("7d")
+        .sign(JWT_REFRESH_SECRET);
+}
+
+export async function verifyRefreshToken(
+    token: string
+): Promise<{ email: string } | null> {
     try {
-        return jwt.verify(token, JWT_REFRESH_SECRET) as { userId: string };
+        const { payload } = await jwtVerify(token, JWT_REFRESH_SECRET);
+        return payload as { email: string };
     } catch (error) {
         return null;
     }

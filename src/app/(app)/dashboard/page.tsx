@@ -1,11 +1,32 @@
-
+"use client";
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 export default function Component() {
+    const { data: session, status } = useSession();
+    const router = useRouter();
+    useEffect(
+        () => {
+            if (status === 'authenticated') {
+                router.push("/sign-in");
+            }
+        }
+        , [status, router]
+    );
+    if (status==='loading') {
+        return (<>
+        <div>loading...</div>
+        </>)
+    }
+    if (!session) {
+        return null;
+    }
     return (
         <div className="grid h-screen w-full lg:grid-cols-[280px_1fr]">
             <div className="hidden border-r bg-gray-100/40 lg:block dark:bg-gray-800/40">
@@ -13,7 +34,7 @@ export default function Component() {
                     <div className="flex h-[60px] items-center border-b px-6">
                         <Link href="#" className="flex items-center gap-2 font-semibold" prefetch={false}>
                             <MessageSquareIcon className="h-6 w-6" />
-                            <span className="">Messages</span>
+                            <span className="">{session.user.username}</span>
                         </Link>
                         <Button variant="outline" size="icon" className="ml-auto h-8 w-8">
                             <SearchIcon className="h-4 w-4" />
@@ -112,7 +133,7 @@ export default function Component() {
     )
 }
 
-function MessageSquareIcon(props:React.SVGAttributes<SVGSVGElement>) {
+function MessageSquareIcon(props: React.SVGAttributes<SVGSVGElement>) {
     return (
         <svg
             {...props}
@@ -132,7 +153,7 @@ function MessageSquareIcon(props:React.SVGAttributes<SVGSVGElement>) {
 }
 
 
-function SearchIcon(props:React.SVGAttributes<SVGSVGElement>) {
+function SearchIcon(props: React.SVGAttributes<SVGSVGElement>) {
     return (
         <svg
             {...props}
@@ -153,7 +174,7 @@ function SearchIcon(props:React.SVGAttributes<SVGSVGElement>) {
 }
 
 
-function XIcon(props:React.SVGAttributes<SVGSVGElement>) {
+function XIcon(props: React.SVGAttributes<SVGSVGElement>) {
     return (
         <svg
             {...props}
