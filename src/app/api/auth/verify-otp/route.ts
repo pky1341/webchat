@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
         if (!token || !isVerifying) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
-        const decodedToken =verifyAccessToken(token);
+        const decodedToken =await verifyAccessToken(token);
         if (!decodedToken) {
             return NextResponse.json({ message: "Invalid token" }, { status: 401 });
         }
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
                 isVerified: true,
             });
             await redisClient.del(`user:${email}`);
-            const newToken = generateAccessToken(email);
+            const newToken =await generateAccessToken(email);
             const response = NextResponse.json({ success: true, message: "Email verified successfully" }, { status: 200 });
             response.cookies.set('auth_token', newToken, { httpOnly: true, secure: true,sameSite: 'strict' });
             response.cookies.set('is_verifying', '', { httpOnly: true, secure: true, maxAge: 0,sameSite: 'strict' });
