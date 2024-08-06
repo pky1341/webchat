@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAccessToken } from "./lib/auth/jwt";
+import { getToken } from "next-auth/jwt";
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
     const path = request.nextUrl.pathname;
     const token = request.cookies.get("auth_token")?.value;
     const isVerifying = request.cookies.get("is_verifying")?.value === "true";
-
+    const session = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+    
     if (path === '/verify-otp' || path === '/dashboard') {
+
         if (!token) {
             return NextResponse.redirect(new URL('/sign-up', request.url));
         }

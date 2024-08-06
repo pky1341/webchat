@@ -9,24 +9,24 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 
 export default function Component() {
-    const { data: session, status } = useSession();
-    const router = useRouter();
-    useEffect(
-        () => {
-            if (status === 'authenticated') {
-                router.push("/sign-in");
-            }
-        }
-        , [status, router]
-    );
-    if (status==='loading') {
-        return (<>
-        <div>loading...</div>
-        </>)
-    }
-    if (!session) {
-        return null;
-    }
+    // const { data: session, status } = useSession();
+    // const router = useRouter();
+    // useEffect(
+    //     () => {
+    //         if (status === 'authenticated') {
+    //             router.push("/sign-in");
+    //         }
+    //     }
+    //     , [status, router]
+    // );
+    // if (status==='loading') {
+    //     return (<>
+    //     <div>loading...</div>
+    //     </>)
+    // }
+    // if (!session) {
+    //     return null;
+    // }
     return (
         <div className="grid h-screen w-full lg:grid-cols-[280px_1fr]">
             <div className="hidden border-r bg-gray-100/40 lg:block dark:bg-gray-800/40">
@@ -34,7 +34,7 @@ export default function Component() {
                     <div className="flex h-[60px] items-center border-b px-6">
                         <Link href="#" className="flex items-center gap-2 font-semibold" prefetch={false}>
                             <MessageSquareIcon className="h-6 w-6" />
-                            <span className="">{session.user.username}</span>
+                            {/* <span className="">{session.user.username}</span> */}
                         </Link>
                         <Button variant="outline" size="icon" className="ml-auto h-8 w-8">
                             <SearchIcon className="h-4 w-4" />
