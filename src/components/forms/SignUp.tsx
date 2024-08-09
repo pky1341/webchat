@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { ErrorMessage } from "@/utils/errAni";
 import { AnimatePresence } from 'framer-motion';
 import { signIn } from "next-auth/react";
+import Link from "next/link";
 
 interface SignUpProps {
     email: string;
@@ -142,7 +143,7 @@ export default function SignUpForm() {
                     <CardFooter className="flex justify-center">
                         <p className="text-sm text-gray-600 dark:text-gray-400">
                             Already have an account?{' '}
-                            <a href="#" className="text-blue-600 hover:underline">Log in</a>
+                            <Link href="/sign-in" className="text-blue-600 hover:underline">Log in</Link>
                         </p>
                     </CardFooter>
                 </div>
