@@ -7,9 +7,8 @@ export async function middleware(request: NextRequest) {
     const token = request.cookies.get("auth_token")?.value;
     const isVerifying = request.cookies.get("is_verifying")?.value === "true";
     const session = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET});
-    console.log(`Path: ${path}, Session: ${!!session}, Token: ${!!token}, IsVerifying: ${isVerifying}`);
+    // console.log(`Path: ${path}, Session: ${!!session}, Token: ${!!token}, IsVerifying: ${isVerifying}`);
     const isAuthenticated = !!token || !!session;
-
     if (isAuthenticated && (path === '/sign-in' || path === '/sign-up')) {
         return NextResponse.redirect(new URL('/dashboard', request.url));
     }
@@ -37,9 +36,17 @@ export async function middleware(request: NextRequest) {
             }
         }
     }
+    if (path === '/api/auth/sign-in' || path === '/api/auth/sign-up') {
+        if (request.method !== 'POST') {
+            return new NextResponse(null, { status: 405 });
+        }
+        if (!request.headers.get('csrf-token')) {
+            return new NextResponse(null, { status: 403 });
+        }
+    }
     return NextResponse.next();
 }
 
 export const config = {
-    matcher: ['/','/verify-otp', '/dashboard', '/sign-up', '/sign-in'],
+    matcher: ['/verify-otp', '/dashboard', '/sign-up', '/sign-in', '/api/auth/sign-in', '/api/auth/sign-up'],
 };
