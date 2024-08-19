@@ -31,7 +31,6 @@ export async function POST(request: NextRequest) {
         }
         const body = await request.json();
         const { email } = resendOTPSchema.parse(body);
-
         const userData = await redisClient.get(`user:${email}`);
         if (!userData) {
             return NextResponse.json({ message: "No pending registration found for this email" }, { status: 400 });
@@ -48,11 +47,11 @@ export async function POST(request: NextRequest) {
             },
             { status: 200 }
         );
-        response.cookies.set('is_verifying','true',{
-            httpOnly:true,
-            secure:true,
-            sameSite:'strict',
-            maxAge:3600
+        response.cookies.set('is_verifying', 'true', {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+            maxAge: 3600
         })
         return response;
     } catch (error) {

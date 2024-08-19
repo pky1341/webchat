@@ -13,6 +13,7 @@ import { ErrorMessage } from "@/utils/errAni";
 import { AnimatePresence } from 'framer-motion';
 import { z } from "zod";
 import { toast } from "sonner";
+import Cookies from 'js-cookie';
 
 type otpFormData = z.infer<typeof otpSchema>;
 
@@ -52,6 +53,7 @@ export const OTPForm = () => {
     }, [showError]);
 
     const onSubmit = async (data: otpFormData) => {
+        console.log(data);
         setShowError(true);
         if (errors.otp) return;
         setVerifyLoading(true);
@@ -79,6 +81,7 @@ export const OTPForm = () => {
         setResendLoading(true);
         if (!email) {
             toast.warning('Email not found. Please try signing up again.');
+            Cookies.remove("is_verifying");
             setResendLoading(false);
             return;
         }

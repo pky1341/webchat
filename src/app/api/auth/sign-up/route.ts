@@ -7,6 +7,7 @@ import redisClient from "@/lib/redis";
 import bcrypt from 'bcrypt';
 import { NextResponse } from "next/server";
 import { generateAccessToken } from '@/lib/auth/jwt';
+import UserModel from "@/model/User";
 
 export async function POST(request: Request) {
     try {
@@ -18,17 +19,18 @@ export async function POST(request: Request) {
         await limiter.check(10, "SIGNUP_RATE_LIMIT" as any);
         const { email, password } = await request.json();
         try {
-
             const existingUserData = await redisClient.get(`user:${email}`);
-
             if (existingUserData) {
                 return NextResponse.json({ message: "User already exist" }, { status: 400 });
             }
-
+            const userExist = await UserModel.findOne({email:email});
+            if (userExist) {
+                return NextResponse.json({ message: "User already exist" }, { status: 400 });
+            }
             const otpCode = await generateOTP(email);
-            const hashedPassword = await bcrypt.hash(password, 12);;
+            const hashedPassword = await bcrypt.hash(password, 12);
             const userName = email.split("@")[0];
-
+            
             await redisClient.set(`user:${email}`, JSON.stringify({
                 username: userName,
                 email,

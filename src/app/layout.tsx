@@ -24,7 +24,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
+  
   return (
     <html lang="en">
       <body className="bg-muted">
@@ -34,14 +34,15 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          <Toaster richColors={true} expand={true} closeButton={true} theme="system" invert={true} />
-          <ProgressBar
+        <ProgressBar
             height="4px"
             color="#2563eb"
             options={{ showSpinner: true }}
             shallowRouting
           />
+          {children}
+          <Toaster richColors={true} expand={true} closeButton={true} theme="system" invert={true} />
+          
         </ThemeProvider>
       </body>
     </html>

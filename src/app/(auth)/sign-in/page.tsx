@@ -1,9 +1,8 @@
-const sign=() =>{
+import SignInForm from "@/components/forms/SignIn";
+export default function SignInPage(){
     return (
         <>
-        <h1>login page</h1>
+        <SignInForm/>
         </>
     );
 }
-
-export default sign;

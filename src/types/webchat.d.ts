@@ -4,3 +4,5 @@ declare module 'otp-gen-agent' {
 }
 declare module 'otp-generator';
 declare module 'jsonwebtoken';
+
+declare module 'js-cookie';

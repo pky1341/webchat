@@ -14,7 +14,7 @@ export async function middleware(request: NextRequest) {
     }
     if (path === '/verify-otp' || path === '/dashboard') {
         if (!token && !session) {
-            return NextResponse.redirect(new URL('/sign-up',request.url));
+            return NextResponse.redirect(new URL('/sign-in',request.url));
         }
         if (session) {
             if (path === '/verify-otp') {
@@ -26,7 +26,7 @@ export async function middleware(request: NextRequest) {
         } else if (token) {
             const decodedToken = await verifyAccessToken(token);
             if (!decodedToken) {
-                return NextResponse.redirect(new URL('/sign-up', request.url));
+                return NextResponse.redirect(new URL('/sign-in', request.url));
             }
             if (path === '/verify-otp' && !isVerifying) {
                 return NextResponse.redirect(new URL('/dashboard', request.url));
@@ -36,17 +36,8 @@ export async function middleware(request: NextRequest) {
             }
         }
     }
-    if (path === '/api/auth/sign-in' || path === '/api/auth/sign-up') {
-        if (request.method !== 'POST') {
-            return new NextResponse(null, { status: 405 });
-        }
-        if (!request.headers.get('csrf-token')) {
-            return new NextResponse(null, { status: 403 });
-        }
-    }
     return NextResponse.next();
 }
-
 export const config = {
-    matcher: ['/verify-otp', '/dashboard', '/sign-up', '/sign-in', '/api/auth/sign-in', '/api/auth/sign-up'],
+    matcher: ['/verify-otp', '/dashboard', '/sign-up', '/sign-in'],
 };
