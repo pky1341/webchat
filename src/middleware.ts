@@ -8,6 +8,13 @@ export async function middleware(request: NextRequest) {
     const isVerifying = request.cookies.get("is_verifying")?.value === "true";
     const session = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET});
     // console.log(`Path: ${path}, Session: ${!!session}, Token: ${!!token}, IsVerifying: ${isVerifying}`);
+    // if(path === '/sign-in'){
+    //     if (isVerifying) {
+    //         const response = NextResponse.redirect(new URL('/sign-in', request.url));
+    //         response.cookies.set("is_verifying", "false");
+    //         return response;
+    //     }
+    // }
     const isAuthenticated = !!token || !!session;
     if (isAuthenticated && (path === '/sign-in' || path === '/sign-up')) {
         return NextResponse.redirect(new URL('/dashboard', request.url));

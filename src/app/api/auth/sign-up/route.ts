@@ -19,10 +19,10 @@ export async function POST(request: Request) {
         await limiter.check(10, "SIGNUP_RATE_LIMIT" as any);
         const { email, password } = await request.json();
         try {
-            const existingUserData = await redisClient.get(`user:${email}`);
-            if (existingUserData) {
-                return NextResponse.json({ message: "User already exist" }, { status: 400 });
-            }
+            // const existingUserData = await redisClient.get(`user:${email}`);
+            // if (existingUserData) {
+            //     return NextResponse.json({ message: "User already exist" }, { status: 400 });
+            // }
             const userExist = await UserModel.findOne({email:email});
             if (userExist) {
                 return NextResponse.json({ message: "User already exist" }, { status: 400 });

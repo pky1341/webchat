@@ -8,8 +8,7 @@ import React from 'react';
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { GetServerSideProps } from "next";
-import { useEffect } from "react";
+
 interface User {
     _id:string;
     name: string;
@@ -18,9 +17,7 @@ interface DashBoardProps {
     props: User[];
 }
 
-export default function DashBoard(props:DashBoardProps) {
-    
-    console.log('user',props);
+export default function DashBoard() {
     const router = useRouter();
     const handleLogout = async (e: React.MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
@@ -28,9 +25,6 @@ export default function DashBoard(props:DashBoardProps) {
         router.push("/sign-in");
         toast.info('you logged Out from the panel');
     }
-    // useEffect(() => {
-    //     console.log('users in dashboard', users);
-    // },[users]);
 
     return (
         <div className="flex h-screen bg-gray-900 text-white">
@@ -72,25 +66,22 @@ export default function DashBoard(props:DashBoardProps) {
                 </div>
 
                 <div className="flex-1 overflow-y-auto">
-                    {/* {users && users.length > 0 ? (users.map((item) => (
-                        <div key={item.name} className="flex items-center p-4 border-b border-gray-700 hover:bg-gray-700">
+                        <div className="flex items-center p-4 border-b border-gray-700 hover:bg-gray-700">
                             <Avatar>
                                 <AvatarImage src="/placeholder-user.jpg" alt="Avatar" />
                                 <AvatarFallback>U</AvatarFallback>
                             </Avatar>
                             <div className="flex-1 ml-4">
                                 <div className="flex justify-between">
-                                    <h2 className="font-bold">{item.name ? item.name : 'Unknown User'}</h2>
+                                    <h2 className="font-bold">Unknown User</h2>
                                     <span className="text-sm text-gray-400">Yesterday</span>
                                 </div>
                                 <p className="text-sm text-gray-400">Last message preview...</p>
                             </div>
                         </div>
-                    ))) : (
                         <div className="flex justify-center items-center h-full">
                             <p>No users found.</p>
                         </div>
-                    )} */}
                 </div>
             </aside>
             <main className="flex-1 flex flex-col items-center justify-center">
@@ -105,28 +96,6 @@ export default function DashBoard(props:DashBoardProps) {
             </main>
         </div>
     )
-}
-export const getServerSideProps: GetServerSideProps = async () => {
-    // try {
-        const res = await fetch('http://localhost:3000/api/users/get-users');
-        
-        if (!res.ok) {
-            throw new Error('Failed to fetch users');
-        }
-        const users = await res.json();
-        return {
-            props: {
-                users
-            }
-        }
-    // } catch (error) {
-    //     console.error(error);
-    //     return {
-    //         props: {
-    //             users: []
-    //         }
-    //     }
-    // }
 }
 
 function LaptopIcon(props: React.SVGAttributes<SVGSVGElement>) {
