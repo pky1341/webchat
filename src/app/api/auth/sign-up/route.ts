@@ -1,3 +1,4 @@
+"use client";
 import mongoDB from "@/lib/mongoDB";
 import { sendVerificationEmail } from "@/helper/sendVerificationEmail";
 import { rateLimit } from "@/lib/rateLimit";
